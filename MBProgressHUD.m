@@ -432,6 +432,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	label.opaque = NO;
 	label.backgroundColor = [UIColor clearColor];
 	label.textColor = [UIColor whiteColor];
+    label.numberOfLines = 0;
 	label.font = self.labelFont;
 	label.text = self.labelText;
 	[self addSubview:label];
@@ -504,7 +505,9 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	totalSize.width = MAX(totalSize.width, indicatorF.size.width);
 	totalSize.height += indicatorF.size.height;
 	
-	CGSize labelSize = [label.text sizeWithFont:label.font];
+	CGSize labelSize = [label.text sizeWithFont:label.font
+                              constrainedToSize:CGSizeMake(bounds.size.width - 4 * margin, bounds.size.height - 4 * margin)
+                                  lineBreakMode:label.lineBreakMode];
 	labelSize.width = MIN(labelSize.width, maxWidth);
 	totalSize.width = MAX(totalSize.width, labelSize.width);
 	totalSize.height += labelSize.height;
