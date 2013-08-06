@@ -496,7 +496,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
         NSMutableParagraphStyle* paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.lineBreakMode = aLabel.lineBreakMode;
         return [aLabel.text boundingRectWithSize:constrainedSize
-                                             options:(aLabel.numberOfLines == 1 ? 0 : NSStringDrawingUsesLineFragmentOrigin)|NSStringDrawingUsesDeviceMetrics
+                                             options:(aLabel.numberOfLines == 1 ? 0 : NSStringDrawingUsesLineFragmentOrigin)
                                           attributes:@{
                                                        NSFontAttributeName:aLabel.font,
                                                        NSParagraphStyleAttributeName: paragraphStyle,
