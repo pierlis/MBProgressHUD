@@ -487,6 +487,38 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 
 #pragma mark - Layout
 
+- (CGSize) sizeForLabel:(UILabel*)aLabel constrainedToSize:(CGSize)constrainedSize
+{
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= 70000
+    if ([aLabel.text respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)])
+    {
+        NSStringDrawingContext* drawingContext = [[NSStringDrawingContext alloc] init];
+        NSMutableParagraphStyle* paragraphStyle = [NSMutableParagraphStyle new];
+        paragraphStyle.lineBreakMode = aLabel.lineBreakMode;
+        return [aLabel.text boundingRectWithSize:constrainedSize
+                                             options:(aLabel.numberOfLines == 1 ? 0 : NSStringDrawingUsesLineFragmentOrigin)|NSStringDrawingUsesDeviceMetrics
+                                          attributes:@{
+                                                       NSFontAttributeName:aLabel.font,
+                                                       NSParagraphStyleAttributeName: paragraphStyle,
+                                                       } context:drawingContext].size;
+    }
+    else
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        return [aLabel.text sizeWithFont:aLabel.font
+                      constrainedToSize:constrainedSize
+                          lineBreakMode:aLabel.lineBreakMode];
+#pragma clang diagnostic pop
+    }
+#else
+    // Compiling for iOS6 or earlier, simply use old API.
+    return [label.text sizeWithFont:label.font
+                  constrainedToSize:size
+                      lineBreakMode:label.lineBreakMode];
+#endif
+}
+
 - (void)layoutSubviews {
 	
 	// Entirely cover the parent view
@@ -505,9 +537,8 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	totalSize.width = MAX(totalSize.width, indicatorF.size.width);
 	totalSize.height += indicatorF.size.height;
 	
-	CGSize labelSize = [label.text sizeWithFont:label.font
-                              constrainedToSize:CGSizeMake(bounds.size.width - 4 * margin, bounds.size.height - 4 * margin)
-                                  lineBreakMode:label.lineBreakMode];
+    CGSize labelSize = [self sizeForLabel:label constrainedToSize:CGSizeMake(bounds.size.width - 4 * margin, bounds.size.height - 4 * margin)];
+    
 	labelSize.width = MIN(labelSize.width, maxWidth);
 	totalSize.width = MAX(totalSize.width, labelSize.width);
 	totalSize.height += labelSize.height;
@@ -517,8 +548,9 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 
 	CGFloat remainingHeight = bounds.size.height - totalSize.height - kPadding - 4 * margin; 
 	CGSize maxSize = CGSizeMake(maxWidth, remainingHeight);
-	CGSize detailsLabelSize = [detailsLabel.text sizeWithFont:detailsLabel.font 
-								constrainedToSize:maxSize lineBreakMode:detailsLabel.lineBreakMode];
+    
+    CGSize detailsLabelSize = [self sizeForLabel:detailsLabel constrainedToSize:maxSize];
+
 	totalSize.width = MAX(totalSize.width, detailsLabelSize.width);
 	totalSize.height += detailsLabelSize.height;
 	if (detailsLabelSize.height > 0.f && (indicatorF.size.height > 0.f || labelSize.height > 0.f)) {
