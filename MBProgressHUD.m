@@ -432,6 +432,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	label.opaque = NO;
 	label.backgroundColor = [UIColor clearColor];
 	label.textColor = [UIColor whiteColor];
+    label.lineBreakMode = NSLineBreakByWordWrapping;
     label.numberOfLines = 0;
 	label.font = self.labelFont;
 	label.text = self.labelText;
@@ -444,6 +445,7 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
 	detailsLabel.opaque = NO;
 	detailsLabel.backgroundColor = [UIColor clearColor];
 	detailsLabel.textColor = [UIColor whiteColor];
+    detailsLabel.lineBreakMode = NSLineBreakByWordWrapping;
 	detailsLabel.numberOfLines = 0;
 	detailsLabel.font = self.detailsLabelFont;
 	detailsLabel.text = self.detailsLabelText;
@@ -495,12 +497,14 @@ static const CGFloat kDetailsLabelFontSize = 12.f;
         NSStringDrawingContext* drawingContext = [[NSStringDrawingContext alloc] init];
         NSMutableParagraphStyle* paragraphStyle = [NSMutableParagraphStyle new];
         paragraphStyle.lineBreakMode = aLabel.lineBreakMode;
-        return [aLabel.text boundingRectWithSize:constrainedSize
-                                             options:(aLabel.numberOfLines == 1 ? 0 : NSStringDrawingUsesLineFragmentOrigin)
-                                          attributes:@{
-                                                       NSFontAttributeName:aLabel.font,
-                                                       NSParagraphStyleAttributeName: paragraphStyle,
-                                                       } context:drawingContext].size;
+        CGSize boundingSize = [aLabel.text boundingRectWithSize:constrainedSize
+                                                        options:(aLabel.numberOfLines == 1 ? 0 : NSStringDrawingUsesLineFragmentOrigin)
+                                                     attributes:@{
+                                                                  NSFontAttributeName:aLabel.font,
+                                                                  NSParagraphStyleAttributeName: paragraphStyle,
+                                                                  }
+                                                        context:drawingContext].size;
+        return CGSizeMake(ceilf(boundingSize.width), ceilf(boundingSize.height));
     }
     else
     {
